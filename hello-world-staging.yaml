@@ -1,0 +1,173 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cpires
+  labels:
+    app.kubernetes.io/name: cpires
+    app.kubernetes.io/part-of: cpires
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-ingress
+  namespace: cpires
+  labels:
+    app.kubernetes.io/name: cpires
+    app.kubernetes.io/part-of: cpires
+spec:
+  #externalTrafficPolicy: Local
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: cpires
+    app.kubernetes.io/part-of: cpires
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: https
+      port: 443
+      targetPort: https
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello-world-rest
+  namespace: cpires
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-world-rest
+  template:
+    metadata:
+      labels:
+        app: hello-world-rest
+    spec:
+      containers:
+      - name: hello-world-rest
+        image: vad1mo/hello-world-rest
+        ports:
+        - name: http
+          containerPort: 5050
+        #- name: https
+        #  containerPort: 5443
+
+        #volumeMounts:
+        #- name: tls
+         # mountPath: /tmp/app/tls
+
+      #volumes:
+      #- name: tls
+       # secret:
+        #  secretName: onboard.192.168.99.6.nip.io.tls
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-rest-svc
+  namespace: cpires
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 5050
+    protocol: TCP
+    name: http
+  - port: 443
+    targetPort: 5050
+    protocol: TCP
+    name: https
+  selector:
+    app: hello-world-rest
+    
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world-rest-ingress
+  namespace: cpires
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    # Enable client certificate authentication
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
+    # Create the secret containing the trusted ca certificates
+    nginx.ingress.kubernetes.io/auth-tls-secret: "cpires/cristianopires-eu-letsencrypt-staging-tls"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"  
+    # Specify the verification depth in the client certificates chain
+        #https://github.com/kubernetes/ingress-nginx/issues/110
+    nginx.ingress.kubernetes.io/auth-tls-verify-depth: "5"
+    # Specify an error page to be redirected to verification errors
+    nginx.ingress.kubernetes.io/auth-tls-error-page: "https://auth.example.com/errors.html"
+    #//-- se queremos enviar para o backend
+    # - true - envia-o para o Backend    
+    #nginx.ingress.kubernetes.io/backend-protocol: "https"
+    # Specify if certificates are passed to upstream server
+    nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "false"    
+    #//enviar para o backend
+    #
+    #certmanager.k8s.io/cluster-issuer: letsencrypt-staging
+    #kubernetes.io/tls-acme: "true"
+    #nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    #nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+spec:  
+  tls:
+    - secretName: cristianopires-eu-letsencrypt-staging-tls
+      hosts:
+        - cristianopires.eu   
+        - www.cristianopires.eu      
+        - cristianopires.nl
+        - test-tls.cristianopires.eu
+  rules:
+    - host: test-tls.cristianopires.eu
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: hello-world-rest-svc
+              servicePort: 80
+              
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: ClusterIssuer
+metadata:
+    name: letsencrypt-staging
+    namespace: cpires
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: chonelopes@gmail.com
+    privateKeySecretRef: 
+      name: letsencrypt-staging
+    http01: {}
+    
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+    name: cristianopires-eu-letsencrypt-staging
+    namespace: cpires
+spec:
+  secretName: cristianopires-eu-letsencrypt-staging-tls
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  commonName: cristianopires.eu
+  dnsNames:
+  - cristianopires.eu
+  - www.cristianopires.eu
+  - cristianopires.nl
+  - www.cristianopires.nl
+  acme:
+    config:
+      - http01:
+          ingress: hello-world-rest-ingress
+        domains:
+          - cristianopires.eu
+          - www.cristianopires.eu
+          - cristianopires.nl
+          - www.cristianopires.nl        
