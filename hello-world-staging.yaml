@@ -86,17 +86,18 @@ spec:
 
 ---
 apiVersion: certmanager.k8s.io/v1alpha1
-kind: ClusterIssuer
+kind: Issuer
 metadata:
     name: letsencrypt-staging
     namespace: cpires
 spec:
   acme:
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-staging-v02.api.letsencrypt.org/directory #https://acme-staging.api.letsencrypt.org/directory
     email: chonelopes@gmail.com
     privateKeySecretRef: 
       name: letsencrypt-staging
     http01: {}
+    
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
