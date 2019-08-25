@@ -100,7 +100,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"  
     # Specify the verification depth in the client certificates chain
         #https://github.com/kubernetes/ingress-nginx/issues/110
-    nginx.ingress.kubernetes.io/auth-tls-verify-depth: "5"
+    nginx.ingress.kubernetes.io/auth-tls-verify-depth: "1"
     # Specify an error page to be redirected to verification errors
     nginx.ingress.kubernetes.io/auth-tls-error-page: "https://auth.example.com/errors.html"
     #//-- se queremos enviar para o backend
@@ -112,12 +112,13 @@ metadata:
     #
     certmanager.k8s.io/cluster-issuer: letsencrypt-staging
     kubernetes.io/tls-acme: "true"
-    #nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     #nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
 spec:  
   tls:
     - secretName: cristianopires-eu-letsencrypt-staging-tls
       hosts:
+        - cristianopires.eu
         - test-tls.cristianopires.eu
   rules:
     - host: test-tls.cristianopires.eu
