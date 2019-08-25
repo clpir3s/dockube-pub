@@ -40,7 +40,7 @@ spec:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     email: chonelopes@gmail.com
     privateKeySecretRef: 
-      name: letsencrypt
+      name: letsencrypt-staging
     http01: {}
 
 ---
