@@ -37,7 +37,7 @@ metadata:
     namespace: cpires
 spec:
   acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
     email: chonelopes@gmail.com
     privateKeySecretRef: 
       name: letsencrypt
