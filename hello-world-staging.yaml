@@ -118,9 +118,6 @@ spec:
   tls:
     - secretName: cristianopires-eu-letsencrypt-staging-tls
       hosts:
-        - cristianopires.eu   
-        - www.cristianopires.eu      
-        - cristianopires.nl
         - test-tls.cristianopires.eu
   rules:
     - host: test-tls.cristianopires.eu
