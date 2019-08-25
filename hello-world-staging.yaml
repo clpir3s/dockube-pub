@@ -124,8 +124,8 @@ metadata:
     nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "false"    
     #//enviar para o backend
     #
-    certmanager.k8s.io/cluster-issuer: letsencrypt-staging
-    kubernetes.io/tls-acme: "true"
+    #certmanager.k8s.io/cluster-issuer: letsencrypt-staging
+    #kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     #nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
 spec:  
@@ -142,3 +142,24 @@ spec:
             backend:
               serviceName: hello-world-rest-svc
               servicePort: 80
+
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+    name: cristianopires-eu-letsencrypt-staging
+    namespace: cpires
+spec:
+  secretName: cristianopires-eu-letsencrypt-staging-tls
+  issuerRef:
+    name: letsencrypt-staging
+    kind: Issuer
+  commonName: cristianopires.eu
+  domains:
+    - cristianopires.eu
+  acme:
+    config:
+      - http01:
+          ingress: hello-world-rest-ingress
+        domains:
+          - cristianopires.eu
