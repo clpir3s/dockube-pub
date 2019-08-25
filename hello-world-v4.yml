@@ -122,35 +122,14 @@ spec:
         - www.cristianopires.eu      
         - cristianopires.nl
   rules:
-    - host: cristianopires.eu
+    - host: test-tls.cristianopires.eu
       http:
         paths:
           - path: /
             backend:
               serviceName: hello-world-rest-svc
               servicePort: 80
-    - host: www.cristianopires.eu
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: hello-world-rest-svc
-              servicePort: 80
-    - host: cristianopires.nl
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: hello-world-rest-svc
-              servicePort: 80
-    - host: www.cristianopires.nl
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: hello-world-rest-svc
-              servicePort: 80
-          
+              
 ---
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: ClusterIssuer
