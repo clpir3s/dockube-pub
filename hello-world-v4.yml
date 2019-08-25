@@ -121,6 +121,7 @@ spec:
         - cristianopires.eu   
         - www.cristianopires.eu      
         - cristianopires.nl
+        - test-tls.cristianopires.eu
   rules:
     - host: test-tls.cristianopires.eu
       http:
